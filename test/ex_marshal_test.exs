@@ -77,12 +77,23 @@ defmodule ExMarshalTest do
     decoded_int = ExMarshal.decode(<<4, 8, 105, 4, 255, 255, 255, 63>>)
 
     assert 1073741823 == decoded_int
-
   end
 
   test "decode 4 bytes negative integer" do
     decoded_int = ExMarshal.decode(<<4, 8, 105, 252, 0, 0, 0, 192>>)
 
     assert -1073741824 == decoded_int
+  end
+
+  test "decode big float" do
+    decoded_float = ExMarshal.decode(<<4, 8, 102, 9, 49, 46, 50, 51>>)
+
+    assert 1.23 == decoded_float
+  end
+
+  test "decode float" do
+    decoded_big_decimal = ExMarshal.decode(<<4, 8, 117, 58, 15, 66, 105, 103, 68, 101, 99, 105, 109, 97, 108, 15, 49, 56, 58, 48, 46, 49, 50, 51, 69, 49>>)
+
+    assert Decimal.new("1.23") == decoded_big_decimal
   end
 end
