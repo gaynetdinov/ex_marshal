@@ -96,4 +96,16 @@ defmodule ExMarshalTest do
 
     assert Decimal.new("1.23") == decoded_big_decimal
   end
+
+  test "decode positive bignum" do
+    decoded_bignum = ExMarshal.decode(<<4, 8, 108, 43, 7, 0, 0, 0, 64>>)
+
+    assert 1073741824 == decoded_bignum
+  end
+
+  test "decode negative bignum" do
+    decoded_bignum = ExMarshal.decode(<<4, 8, 108, 45, 7, 1, 0, 0, 64>>)
+
+    assert -1073741825 == decoded_bignum
+  end
 end

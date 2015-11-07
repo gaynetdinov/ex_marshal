@@ -21,6 +21,7 @@ defmodule ExMarshal do
       ":" -> decode_symbol(value)
       "f" -> decode_float(value)
       "u" -> decode_big_decimal(value)
+      "l" -> decode_bignum(value)
     end
   end
 
@@ -115,5 +116,17 @@ defmodule ExMarshal do
     [_significant_digits, decimal_value] = String.split(decimal_str, ":")
 
     Decimal.new(decimal_value)
+  end
+
+  def decode_bignum(<<sign::1-bytes, size_byte::8, value::binary>>) do
+    size = decode_fixnum(<<size_byte>>) * 2 * 8
+
+    <<bignum::native-integer-size(size)>> = value
+
+    if sign == "+" do
+      bignum
+    else
+      bignum * -1
+    end
   end
 end
