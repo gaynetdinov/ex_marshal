@@ -85,13 +85,13 @@ defmodule ExMarshalTest do
     assert -1073741824 == decoded_int
   end
 
-  test "decode big float" do
+  test "decode float" do
     decoded_float = ExMarshal.decode(<<4, 8, 102, 9, 49, 46, 50, 51>>)
 
     assert 1.23 == decoded_float
   end
 
-  test "decode float" do
+  test "decode big decimal" do
     decoded_big_decimal = ExMarshal.decode(<<4, 8, 117, 58, 15, 66, 105, 103, 68, 101, 99, 105, 109, 97, 108, 15, 49, 56, 58, 48, 46, 49, 50, 51, 69, 49>>)
 
     assert Decimal.new("1.23") == decoded_big_decimal
