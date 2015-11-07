@@ -49,6 +49,12 @@ defmodule ExMarshalTest do
     assert -100 == decoded_int
   end
 
+  test "decode 1 byte integer" do
+    decoded_int = ExMarshal.decode(<<4, 8, 105, 1, 254>>)
+
+    assert 254 == decoded_int
+  end
+
   test "decode 2 bytes integer" do
     decoded_int = ExMarshal.decode(<<4, 8, 105, 2, 0, 1>>)
 
