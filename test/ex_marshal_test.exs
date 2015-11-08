@@ -114,4 +114,53 @@ defmodule ExMarshalTest do
 
     assert -1073741825 == decoded_bignum
   end
+
+  test "decode empty array" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 0>>)
+
+    assert [] == decoded_array
+  end
+
+  test "decode simple array of integers" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 8, 105, 6, 105, 7, 105, 8>>)
+
+    assert [1, 2, 3] == decoded_array
+  end
+
+  test "decode simple array of strings" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 8, 73, 34, 6, 97, 6, 58, 6, 69, 84, 73, 34, 6, 98, 6, 59, 0, 84, 73, 34, 6, 99, 6, 59, 0, 84>>)
+
+    assert ["a", "b", "c"] == decoded_array
+  end
+
+  test "decode array of string with different encodings" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 8, 73, 34, 6, 97, 6, 58, 6, 69,
+      84, 73, 34, 6, 98, 6, 59, 0, 70, 73, 34, 6, 99, 6, 58, 13, 101, 110, 99, 111,
+      100, 105, 110, 103, 34, 14, 83, 104, 105, 102, 116, 95, 74, 73, 83>>)
+
+    assert ["a", "b", "c"] == decoded_array
+  end
+
+  test "decode nested array" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 6, 91, 6, 91, 6, 91, 6, 105, 6>>)
+
+    assert [[[[1]]]] == decoded_array
+  end
+
+  test "decode arrays of symbols with links" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 7, 58, 8, 111, 110, 101, 59, 0>>)
+
+    assert [:one, :one] == decoded_array
+
+  end
+
+  test "decode complex array" do
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 12, 58, 8, 111, 110, 101, 73, 34, 8,
+      116, 119, 111, 6, 58, 6, 69, 84, 105, 8, 91, 7, 58, 9, 102, 111, 117, 114, 59,
+      0, 105, 254, 247, 254, 91, 6, 91, 0, 73, 34, 8, 116, 101, 110, 6, 58, 13, 101,
+      110, 99, 111, 100, 105, 110, 103, 34, 14, 83, 104, 105, 102, 116, 95, 74, 73, 83>>)
+
+    assert [:one, "two", 3, [:four, :one], -265, [[]], "ten"] == decoded_array
+
+  end
 end
