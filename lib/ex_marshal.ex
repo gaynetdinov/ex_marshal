@@ -19,6 +19,7 @@ defmodule ExMarshal do
       "u" -> decode_big_decimal(value, state)
       "l" -> decode_bignum(value, state)
       "[" -> decode_array(value, state)
+      "{" -> decode_hash(value, state)
     end
   end
 
@@ -185,6 +186,25 @@ defmodule ExMarshal do
   def decode_array(<<size::8, value::binary>>, state) do
     {size, _rest, state} = decode_fixnum(<<size>>, state)
     decode_array(value, size, [], state)
+  end
+
+  # Ruby Hash
+  def decode_hash(value, 0, acc, state) do
+    {Enum.reverse(acc) |> Enum.into(%{}), value, state}
+  end
+
+  def decode_hash(value, size, acc, state) do
+    {key, rest, state} = decode_element(value, state)
+    {value, rest, state} = decode_element(rest, state)
+
+    decode_hash(rest, size - 1, [{key, value} | acc], state)
+  end
+
+  def decode_hash(<<0>>, state), do: {%{}, <<>>, state}
+
+  def decode_hash(<<size::8, value::binary>>, state) do
+    {size, _rest, state} = decode_fixnum(<<size>>, state)
+    decode_hash(value, size, [], state)
   end
 end
 

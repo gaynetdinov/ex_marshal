@@ -151,7 +151,6 @@ defmodule ExMarshalTest do
     decoded_array = ExMarshal.decode(<<4, 8, 91, 7, 58, 8, 111, 110, 101, 59, 0>>)
 
     assert [:one, :one] == decoded_array
-
   end
 
   test "decode complex array" do
@@ -161,6 +160,17 @@ defmodule ExMarshalTest do
       110, 99, 111, 100, 105, 110, 103, 34, 14, 83, 104, 105, 102, 116, 95, 74, 73, 83>>)
 
     assert [:one, "two", 3, [:four, :one], -265, [[]], "ten"] == decoded_array
+  end
 
+  test "decode empty hash" do
+    decoded_hash = ExMarshal.decode(<<4, 8, 123, 0>>)
+
+    assert %{} == decoded_hash
+  end
+
+  test "decode simple hash" do
+    decoded_hash = ExMarshal.decode(<<4, 8, 123, 6, 58, 8, 111, 110, 101, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69, 84>>)
+
+    assert %{one: "one"} == decoded_hash
   end
 end
