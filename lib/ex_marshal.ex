@@ -58,6 +58,14 @@ defmodule ExMarshal do
       small_int when small_int >= 1 and small_int <= 122 ->
         value = small_int + 5
         <<105, value::little-integer-size(8)>>
+      small_int when small_int >= 123 and small_int <= 255 ->
+        <<105, 1, small_int>>
+      small_int when small_int <= -124 and small_int >= -256 ->
+        <<105, 255, small_int::signed-little-integer-size(8)>>
+      int when int >= 256 and int < 65535 ->
+        value_binary = <<int::little-integer-size(24)>>
+        <<value_truncated::2-bytes, _rest>> = value_binary
+        <<105, 2, value_truncated::binary>>
     end
   end
 

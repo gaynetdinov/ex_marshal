@@ -37,4 +37,22 @@ defmodule ExMarshalEncodeTest do
 
     assert <<4, 8, 105, 125>> == encoded_int
   end
+
+  test "encode small positive integer as 1 byte >= 123 and <= 255" do
+    encoded_int = ExMarshal.encode(255)
+
+    assert <<4, 8, 105, 1, 255>> == encoded_int
+  end
+
+  test "encode small negative integer as 1 byte >= -256 and <= -124" do
+    encoded_int = ExMarshal.encode(-256)
+
+    assert <<4, 8, 105, 255, 0>> == encoded_int
+  end
+
+  test "encode small 2 bytes integer" do
+    encoded_int = ExMarshal.encode(256)
+
+    assert <<4, 8, 105, 2, 0, 1>> == encoded_int
+  end
 end
