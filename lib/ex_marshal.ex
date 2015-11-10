@@ -23,6 +23,44 @@ defmodule ExMarshal do
     end
   end
 
+  def encode(value) do
+    value_binary = encode_element(value)
+
+    <<4, 8, value_binary::binary>>
+  end
+
+  def encode_element(value) do
+    case value do
+      nil -> <<48>>
+      true -> <<84>>
+      false -> <<70>>
+      int when is_integer(int) ->
+        case int do
+          v when v < 1073741824 and v > -1073741825 -> encode_fixnum(v)
+          #v when v >= 1073741824 or v <= -1073741825 -> encode_bignum(v)
+          #_ -> raise encode exception
+        end
+        #str when is_bitstring(str) -> encode_string(str)
+        #atom when is_atom(atom) -> encode_atom(atom)
+        #list when is_list(list) -> encode_list(list)
+        #float when is_float(float) -> encode_float(float)
+        #map when is_map(map) -> encode_map(map)
+      #_ -> raise unsupported format
+    end
+  end
+
+  def encode_fixnum(value) do
+    case value do
+      0 -> <<105, 0>>
+      small_int when small_int <= -1 and small_int >= -123 ->
+        value = small_int - 5
+        <<105, value::signed-little-integer-size(8)>>
+      small_int when small_int >= 1 and small_int <= 122 ->
+        value = small_int + 5
+        <<105, value::little-integer-size(8)>>
+    end
+  end
+
   # Small integers, i.e. -123..122
   def decode_fixnum(<<value::binary>>, state) do
     <<fixnum_type::8, fixnum_data::binary>> = value
