@@ -1,6 +1,24 @@
-defmodule ExMarshalDecodeTest do
+defmodule ExMarshalDecoderTest do
   use ExUnit.Case
   doctest ExMarshal
+
+  test "decode nil" do
+    decoded_nil = ExMarshal.decode(<<4, 8, 48>>)
+
+    assert nil == decoded_nil
+  end
+
+  test "decode false" do
+    decoded_false = ExMarshal.decode(<<4, 8, 70>>)
+
+    assert false == decoded_false
+  end
+
+  test "decode true" do
+    decoded_true = ExMarshal.decode(<<4, 8, 84>>)
+
+    assert true = decoded_true
+  end
 
   test "decode simple string" do
     decoded_str = ExMarshal.decode(<<4, 8, 73, 34, 16, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 6, 58, 6, 69, 84>>)

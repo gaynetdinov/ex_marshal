@@ -1,4 +1,4 @@
-defmodule ExMarshalEncodeTest do
+defmodule ExMarshalEncoderTest do
   use ExUnit.Case
   doctest ExMarshal
 
@@ -150,16 +150,5 @@ defmodule ExMarshalEncodeTest do
     encoded_map = ExMarshal.encode(%{one: "one", two: "two"})
 
     assert <<4, 8, 123, 7, 58, 8, 111, 110, 101, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69, 84, 58, 8, 116, 119, 111, 73, 34, 8, 116, 119, 111, 6, 59, 6, 84>> == encoded_map
-  end
-
-  test "encode complex map" do
-    value = %{
-      :one => "two",
-      "three" => 4,
-      "fünf" => [:one, 2, "three", %{"" => []}],
-      "шесть" => 6
-    }
-
-    assert value == ExMarshal.encode(value) |> ExMarshal.decode
   end
 end
