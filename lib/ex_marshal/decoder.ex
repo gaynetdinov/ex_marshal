@@ -137,10 +137,19 @@ defmodule ExMarshal.Decoder do
     <<value::size(symbol_bytes)-bytes, rest::binary>> = value
     atom_value = String.to_atom(value)
 
-    links_count= state[:links_count] || 0
+    links_count = if is_nil(state[:links_count]) do
+      0
+    else
+      encoded_count = ExMarshal.Encoder.encode(state[:links_count] + 1)
+      <<4, 8, 105, count::binary>> = encoded_count
+      link_bits = byte_size(count) * 8
+      <<count::little-integer-size(link_bits)>> = count
+
+      count
+    end
+
     state = Map.put(state, :links_count, links_count)
     state = Map.put(state, links_count, atom_value)
-    state = Map.put(state, :links_count, links_count + 1)
 
     {atom_value, rest, state}
   end

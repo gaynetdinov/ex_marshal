@@ -166,9 +166,9 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode arrays of symbols with links" do
-    decoded_array = ExMarshal.decode(<<4, 8, 91, 7, 58, 8, 111, 110, 101, 59, 0>>)
+    decoded_array = ExMarshal.decode(<<4, 8, 91, 11, 58, 8, 111, 110, 101, 59, 0, 58, 8, 116, 119, 111, 59, 6, 58, 10, 116, 104, 114, 101, 101, 59, 0>>)
 
-    assert [:one, :one] == decoded_array
+    assert [:one, :one, :two, :two, :three, :one] == decoded_array
   end
 
   test "decode complex array" do
