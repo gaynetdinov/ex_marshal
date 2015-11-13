@@ -1,4 +1,4 @@
-defmodule ExMarshalTest do
+defmodule ExMarshalDecodeTest do
   use ExUnit.Case
   doctest ExMarshal
 
@@ -44,9 +44,9 @@ defmodule ExMarshalTest do
   end
 
   test "decode small negative integer" do
-    decoded_int = ExMarshal.decode(<<4, 8, 105, 151>>)
+    decoded_int = ExMarshal.decode(<<4, 8, 105, 131>>)
 
-    assert -100 == decoded_int
+    assert -120 == decoded_int
   end
 
   test "decode 1 byte integer" do
