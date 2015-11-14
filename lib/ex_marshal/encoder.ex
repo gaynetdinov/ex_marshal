@@ -190,7 +190,7 @@ defmodule ExMarshal.Encoder do
 
   defp links_count(state) do
     if state[:links_count] do
-      {count, state} = encode_fixnum(state[:links_count] + 1, state)
+      {count, _state} = encode_fixnum(state[:links_count] + 1, state)
       <<105, count>> = count
 
       count

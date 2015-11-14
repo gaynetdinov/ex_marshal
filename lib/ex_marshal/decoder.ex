@@ -2,7 +2,7 @@ defmodule ExMarshal.Decoder do
   def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
     case decode_element(value, %{}) do
       {value, _rest, _state} -> value
-      # _ -> raise
+      # TODO _ -> raise
     end
   end
 
@@ -23,7 +23,6 @@ defmodule ExMarshal.Decoder do
     end
   end
 
-  # Small integers, i.e. -123..122
   defp decode_fixnum(<<value::binary>>, state) do
     <<fixnum_type::8, fixnum_data::binary>> = value
 
@@ -197,7 +196,6 @@ defmodule ExMarshal.Decoder do
     decode_array(value, size, [], state)
   end
 
-  # Ruby Hash
   defp decode_hash(value, 0, acc, state) do
     {Enum.reverse(acc) |> Enum.into(%{}), value, state}
   end
@@ -213,6 +211,7 @@ defmodule ExMarshal.Decoder do
 
   defp decode_hash(<<size::8, value::binary>>, state) do
     {size, _rest, state} = decode_fixnum(<<size>>, state)
+
     decode_hash(value, size, [], state)
   end
 end
@@ -226,7 +225,6 @@ defmodule ExMarshal.DecodeError do
         "only string ivars are supported: #{inspect(term)}"
       {:invalid_encoding, term} ->
         "invalid encoding: #{inspect(term)}"
-
     end
   end
 end
