@@ -60,7 +60,7 @@ config :memcache_client,
   transcoder: Memcache.Client.Transcoder.Ruby
 ```
 
-### Example
+### Examples
 
 #### Read
 
