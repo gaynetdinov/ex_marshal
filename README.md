@@ -99,6 +99,14 @@ Ruby side
  => "hello ruby"
 ```
 
+## Kudos
+
+Thanks to [@tsharju](https://github.com/tsharju) for ability to use custom transcoders in [Memcache.Client](https://github.com/tsharju/memcache_client)
+
+Thanks to [@shepmaster](https://github.com/shepmaster) for [series](http://jakegoulding.com/blog/2013/01/15/a-little-dip-into-rubys-marshal-format/) [of](http://jakegoulding.com/blog/2013/01/16/another-dip-into-rubys-marshal-format/) [posts](http://jakegoulding.com/blog/2013/01/20/a-final-dip-into-rubys-marshal-format/) about Ruby Marshal format.
+
+Special thanks to [@lexmag](https://github.com/lexmag) for help in writing this tool and for guiding me through Elixir world.
+
 ## License
 
 This software is licensed under [the ISC license](LICENSE).
