@@ -98,3 +98,7 @@ Ruby side
 :2 > dc.get("str")
  => "hello ruby"
 ```
+
+## License
+
+This software is licensed under [the ISC license](LICENSE).
