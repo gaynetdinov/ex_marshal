@@ -8,9 +8,9 @@ defmodule ExMarshal.Decoder do
 
   defp decode_element(<<data_type::1-bytes, value::binary>>, state) do
     case data_type do
-      "0" -> {nil, nil, nil}
-      "T" -> {true, nil, nil}
-      "F" -> {false, nil, nil}
+      "0" -> {nil, value, state}
+      "T" -> {true, value, state}
+      "F" -> {false, value, state}
       "i" -> decode_fixnum(value, state)
       "I" -> decode_ivar(value, state)
       ":" -> decode_symbol(value, state)

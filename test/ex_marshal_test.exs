@@ -6,8 +6,8 @@ defmodule ExMarshalTest do
     map = %{
       :one => "two",
       "three" => 4,
-      "fünf" => [:one, 2, "three", %{"" => []}],
-      "шесть" => 6
+      "fünf" => [nil, true, false, :one, 2, "three", %{"" => []}],
+      "шесть" => 6,
     }
 
     assert map == ExMarshal.encode(map) |> ExMarshal.decode
