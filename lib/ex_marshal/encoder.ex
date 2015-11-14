@@ -20,10 +20,22 @@ defmodule ExMarshal.Encoder do
       atom when is_atom(atom) -> encode_atom(atom, state)
       list when is_list(list) -> encode_list(list, state)
       float when is_float(float) -> encode_float(float, state)
+      %Decimal{} -> encode_decimal(value, state)
       map when is_map(map) -> encode_map(Enum.into(map, []), state)
-      # TODO encode Decimal somehow maybe?
       #_ -> raise unsupported format
     end
+  end
+
+  def encode_decimal(value, state) do
+    value_str = "18:" <> Decimal.to_string(value)
+    byte_size = byte_size(value_str)
+    {byte_size_encoded, state} = encode_fixnum(byte_size, state)
+    <<105, byte_size_encoded>> = byte_size_encoded
+    decimal_format = <<117, 58, 15, 66, 105, 103, 68, 101, 99, 105, 109, 97, 108>>
+
+    encoded_value = decimal_format <> <<byte_size_encoded, value_str::binary>>
+
+    {encoded_value, state}
   end
 
   defp encode_map(value, state) do
