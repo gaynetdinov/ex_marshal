@@ -169,7 +169,7 @@ defmodule ExMarshalEncoderTest do
     exception_message = "the following type is not supported: %ExMarshalEncoderTest.User{age: 27, name: \"Meg\"}"
 
     assert_raise ExMarshal.EncodeError, exception_message, fn ->
-      encoded_struct = ExMarshal.encode(%User{name: "Meg"})
+      ExMarshal.encode(%User{name: "Meg"})
     end
   end
 end

@@ -32,7 +32,7 @@ defmodule ExMarshalTest do
   # but decoded value is the same.
   test "decode and encode BigDecimal" do
     original_value = Decimal.new("1.01234567089")
-    ruby_encoded = File.read!("./test/support/big_decimal.bin")
+    ruby_encoded = File.read!("./test/fixtures/big_decimal.bin")
     ex_marshal_encoded = ExMarshal.encode(original_value)
 
     assert ExMarshal.decode(ruby_encoded) == ExMarshal.decode(ex_marshal_encoded)
