@@ -28,12 +28,10 @@ defmodule ExMarshal.Encoder do
 
   def encode_decimal(value, state) do
     value_str = "18:" <> Decimal.to_string(value)
-    byte_size = byte_size(value_str)
-    {byte_size_encoded, state} = encode_fixnum(byte_size, state)
-    <<105, byte_size_encoded>> = byte_size_encoded
+    {value_encoded, state} = encode_raw_string(value_str, state)
     decimal_format = <<117, 58, 15, 66, 105, 103, 68, 101, 99, 105, 109, 97, 108>>
 
-    encoded_value = decimal_format <> <<byte_size_encoded, value_str::binary>>
+    encoded_value = decimal_format <> <<value_encoded::binary>>
 
     {encoded_value, state}
   end
