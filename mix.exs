@@ -3,7 +3,7 @@ defmodule ExMarshal.Mixfile do
 
   def project do
     [app: :ex_marshal,
-     version: "0.0.1",
+     version: "0.0.2",
      elixir: "~> 1.0",
      deps: deps,
      description: description,
