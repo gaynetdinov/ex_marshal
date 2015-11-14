@@ -18,7 +18,7 @@ defmodule ExMarshal.Mixfile do
 
   defp package do
     [files: ["lib", "mix.exs", "mix.lock", "README.md", "LICENSE"],
-     contributors: ["Damir Gaynetdinov"],
+     maintainers: ["Damir Gaynetdinov"],
      licenses: ["ISC"],
      links: %{"GitHub" => "https://github.com/gaynetdinov/ex_marshal"}]
   end
