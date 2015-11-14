@@ -21,12 +21,18 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode simple string" do
-    decoded_str = ExMarshal.decode(<<4, 8, 73, 34, 16, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 6, 58, 6, 69, 84>>)
+    decoded_str = ExMarshal.decode(
+      <<4, 8, 73, 34, 16, 104, 101, 108, 108,
+      111, 32, 119, 111, 114, 108, 100, 6, 58, 6, 69, 84>>
+    )
     assert "hello world" == decoded_str
   end
 
   test "decode utf8 string" do
-    decoded_str = ExMarshal.decode(<<4, 8, 73, 34, 17, 208, 191, 209, 128, 208, 184, 208, 178, 208, 181, 209, 130, 6, 58, 6, 69, 84>>)
+    decoded_str = ExMarshal.decode(
+      <<4, 8, 73, 34, 17, 208, 191, 209, 128, 208, 184,
+      208, 178, 208, 181, 209, 130, 6, 58, 6, 69, 84>>
+    )
 
     assert "привет" == decoded_str
   end
@@ -44,7 +50,9 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode symbol with spaces" do
-    decoded_symbol = ExMarshal.decode(<<4, 8, 58, 16, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100>>)
+    decoded_symbol = ExMarshal.decode(
+      <<4, 8, 58, 16, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100>>
+    )
 
     assert :"hello world" == decoded_symbol
   end
@@ -116,7 +124,10 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode big decimal" do
-    decoded_big_decimal = ExMarshal.decode(<<4, 8, 117, 58, 15, 66, 105, 103, 68, 101, 99, 105, 109, 97, 108, 15, 49, 56, 58, 48, 46, 49, 50, 51, 69, 49>>)
+    decoded_big_decimal = ExMarshal.decode(
+      <<4, 8, 117, 58, 15, 66, 105, 103, 68, 101, 99, 105, 109,
+      97, 108, 15, 49, 56, 58, 48, 46, 49, 50, 51, 69, 49>>
+    )
 
     assert Decimal.new("1.23") == decoded_big_decimal
   end
@@ -146,15 +157,20 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode simple array of strings" do
-    decoded_array = ExMarshal.decode(<<4, 8, 91, 8, 73, 34, 6, 97, 6, 58, 6, 69, 84, 73, 34, 6, 98, 6, 59, 0, 84, 73, 34, 6, 99, 6, 59, 0, 84>>)
+    decoded_array = ExMarshal.decode(
+      <<4, 8, 91, 8, 73, 34, 6, 97, 6, 58, 6, 69, 84, 73,
+      34, 6, 98, 6, 59, 0, 84, 73, 34, 6, 99, 6, 59, 0, 84>>
+    )
 
     assert ["a", "b", "c"] == decoded_array
   end
 
   test "decode array of string with different encodings" do
-    decoded_array = ExMarshal.decode(<<4, 8, 91, 8, 73, 34, 6, 97, 6, 58, 6, 69,
-      84, 73, 34, 6, 98, 6, 59, 0, 70, 73, 34, 6, 99, 6, 58, 13, 101, 110, 99, 111,
-      100, 105, 110, 103, 34, 14, 83, 104, 105, 102, 116, 95, 74, 73, 83>>)
+    decoded_array = ExMarshal.decode(
+      <<4, 8, 91, 8, 73, 34, 6, 97, 6, 58, 6, 69, 84, 73, 34, 6, 98,
+      6, 59, 0, 70, 73, 34, 6, 99, 6, 58, 13, 101, 110, 99, 111,
+      100, 105, 110, 103, 34, 14, 83, 104, 105, 102, 116, 95, 74, 73, 83>>
+    )
 
     assert ["a", "b", "c"] == decoded_array
   end
@@ -166,7 +182,10 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode arrays of symbols with links" do
-    decoded_array = ExMarshal.decode(<<4, 8, 91, 11, 58, 8, 111, 110, 101, 59, 0, 58, 8, 116, 119, 111, 59, 6, 58, 10, 116, 104, 114, 101, 101, 59, 0>>)
+    decoded_array = ExMarshal.decode(
+      <<4, 8, 91, 11, 58, 8, 111, 110, 101, 59, 0, 58, 8, 116,
+      119, 111, 59, 6, 58, 10, 116, 104, 114, 101, 101, 59, 0>>
+    )
 
     assert [:one, :one, :two, :two, :three, :one] == decoded_array
   end
@@ -187,7 +206,9 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "decode simple hash" do
-    decoded_hash = ExMarshal.decode(<<4, 8, 123, 6, 58, 8, 111, 110, 101, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69, 84>>)
+    decoded_hash = ExMarshal.decode(
+      <<4, 8, 123, 6, 58, 8, 111, 110, 101, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69, 84>>
+    )
 
     assert %{one: "one"} == decoded_hash
   end

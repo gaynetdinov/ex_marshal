@@ -1,4 +1,8 @@
 defmodule ExMarshalEncoderTest do
+  defmodule User do
+    defstruct name: "John", age: 27
+  end
+
   use ExUnit.Case
   doctest ExMarshal
 
@@ -131,24 +135,41 @@ defmodule ExMarshalEncoderTest do
   test "encode list with links" do
     encoded_list = ExMarshal.encode([:busy, :busy, :foo, :bar, :busy])
 
-    assert <<4, 8, 91, 10, 58, 9, 98, 117, 115, 121, 59, 0, 58, 8, 102, 111, 111, 58, 8, 98, 97, 114, 59, 0>> == encoded_list
+    assert <<4, 8, 91, 10, 58, 9, 98, 117, 115, 121, 59, 0,
+            58, 8, 102, 111, 111, 58, 8, 98, 97, 114, 59, 0>> == encoded_list
   end
 
   test "encode complex list" do
     encoded_list = ExMarshal.encode([:one, "two", 3, [:four, :one], -265, [[]], "ten"])
 
-    assert <<4, 8, 91, 12, 58, 8, 111, 110, 101, 73, 34, 8, 116, 119, 111, 6, 58, 6, 69, 84, 105, 8, 91, 7, 58, 9, 102, 111, 117, 114, 59, 0, 105, 254, 247, 254, 91, 6, 91, 0, 73, 34, 8, 116, 101, 110, 6, 59, 6, 84>> == encoded_list
+    assert <<4, 8, 91, 12, 58, 8, 111, 110, 101, 73, 34, 8, 116,
+            119, 111, 6, 58, 6, 69, 84, 105, 8, 91, 7, 58, 9, 102,
+            111, 117, 114, 59, 0, 105, 254, 247, 254, 91, 6, 91, 0,
+            73, 34, 8, 116, 101, 110, 6, 59, 6, 84>> == encoded_list
   end
 
   test "encode list of strings" do
     encoded_list = ExMarshal.encode(["one", "two", "123", "hello world"])
 
-    assert <<4, 8, 91, 9, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69, 84, 73, 34, 8, 116, 119, 111, 6, 59, 0, 84, 73, 34, 8, 49, 50, 51, 6, 59, 0, 84, 73, 34, 16, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 6, 59, 0, 84>> == encoded_list
+    assert <<4, 8, 91, 9, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69,
+            84, 73, 34, 8, 116, 119, 111, 6, 59, 0, 84, 73, 34, 8,
+            49, 50, 51, 6, 59, 0, 84, 73, 34, 16, 104, 101, 108,
+            108, 111, 32, 119, 111, 114, 108, 100, 6, 59, 0, 84>> == encoded_list
   end
 
   test "encode simple map" do
     encoded_map = ExMarshal.encode(%{one: "one", two: "two"})
 
-    assert <<4, 8, 123, 7, 58, 8, 111, 110, 101, 73, 34, 8, 111, 110, 101, 6, 58, 6, 69, 84, 58, 8, 116, 119, 111, 73, 34, 8, 116, 119, 111, 6, 59, 6, 84>> == encoded_map
+    assert <<4, 8, 123, 7, 58, 8, 111, 110, 101, 73, 34, 8, 111,
+            110, 101, 6, 58, 6, 69, 84, 58, 8, 116, 119, 111, 73,
+            34, 8, 116, 119, 111, 6, 59, 6, 84>> == encoded_map
+  end
+
+  test "encode not supported format" do
+    exception_message = "the following type is not supported: %ExMarshalEncoderTest.User{age: 27, name: \"Meg\"}"
+
+    assert_raise ExMarshal.EncodeError, exception_message, fn ->
+      encoded_struct = ExMarshal.encode(%User{name: "Meg"})
+    end
   end
 end
