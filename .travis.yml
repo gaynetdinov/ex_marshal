@@ -1,0 +1,12 @@
+language: elixir
+
+otp_release:
+  - 17.1
+  - 18.0
+
+elixir:
+  - 1.0.0
+
+sudo: false
+
+script: mix test --trace
