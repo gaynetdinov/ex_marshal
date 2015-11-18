@@ -1,4 +1,4 @@
-# ExMarshal
+# ExMarshal [![Build Status](https://travis-ci.org/gaynetdinov/ex_marshal.svg?branch=master)](https://travis-ci.org/gaynetdinov/ex_marshal)
 
 `ExMarshal` encodes and decodes Elixir terms according to [Ruby Marshal](http://docs.ruby-lang.org/en/2.2.0/marshal_rdoc.html) format.
 
