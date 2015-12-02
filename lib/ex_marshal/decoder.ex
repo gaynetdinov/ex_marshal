@@ -1,6 +1,6 @@
 defmodule ExMarshal.Decoder do
   def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
-    case decode_element(value, %{}) do
+    case decode_element(value, %{links: %{}, references: %{locked: false, first_call: true}}) do
       {value, _rest, _state} -> value
       # TODO _ -> raise
     end
@@ -18,8 +18,24 @@ defmodule ExMarshal.Decoder do
       "f" -> decode_float(value, state)
       "u" -> decode_big_decimal(value, state)
       "l" -> decode_bignum(value, state)
-      "[" -> decode_array(value, state)
-      "{" -> decode_hash(value, state)
+      "[" ->
+        state = if state.references.first_call do
+          put_in(state.references.first_call, false)
+        else
+          lock_references_state(state)
+        end
+
+        decode_array(value, state)
+      "{" ->
+        state = if state.references.first_call do
+          put_in(state.references.first_call, false)
+        else
+          lock_references_state(state)
+        end
+
+        decode_hash(value, state)
+      "@" -> decode_reference(value, state)
+      symbol -> raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
     end
   end
 
@@ -103,6 +119,8 @@ defmodule ExMarshal.Decoder do
           1 -> # utf8 or ascii encding <<69, 84>> or <<69, 70>>
             <<_meta::16, rest::binary>> = rest
 
+            state = update_references(str, state)
+
             {str, rest, state}
           x ->
             <<_encoding_word::size(x)-bytes, 34, encoding_name_size::8, rest::binary>> = rest
@@ -110,10 +128,14 @@ defmodule ExMarshal.Decoder do
 
             <<_enc_name::size(encoding_name_size)-bytes, rest::binary>> = rest
 
+            state = update_references(str, state)
+
             {str, rest, state}
         end
       59 -> # symbolic link, don't know if I should/can use it
         <<_meta::8, rest::binary>> = rest
+
+        state = update_references(str, state)
 
         {str, rest, state}
     end
@@ -127,7 +149,9 @@ defmodule ExMarshal.Decoder do
   end
 
   defp decode_linked_symbol(<<link::8, rest::binary>>, state) do
-    {state[link], rest, state}
+    {link, _rest, state} = decode_fixnum(<<link>>, state)
+
+    {state.links[link], rest, state}
   end
 
   defp decode_symbol(<<symbol_length::8, value::binary>>, state) do
@@ -136,26 +160,23 @@ defmodule ExMarshal.Decoder do
     <<value::size(symbol_bytes)-bytes, rest::binary>> = value
     atom_value = String.to_atom(value)
 
-    links_count = if is_nil(state[:links_count]) do
+    links_count = if is_nil(state.links[:count]) do
       0
     else
-      encoded_count = ExMarshal.Encoder.encode(state[:links_count] + 1)
-      <<4, 8, 105, count::binary>> = encoded_count
-      link_bits = byte_size(count) * 8
-      <<count::little-integer-size(link_bits)>> = count
-
-      count
+      state.links.count + 1
     end
 
-    state = Map.put(state, :links_count, links_count)
-    state = Map.put(state, links_count, atom_value)
+    links_state = Map.put(state.links, :count, links_count)
+    links_state = Map.put(links_state, links_count, atom_value)
 
-    {atom_value, rest, state}
+    {atom_value, rest, %{links: links_state, references: state.references}}
   end
 
   defp decode_float(<<value::binary>>, state) do
     {float_str, rest, state} = decode_raw_string(value, state)
     {float_value, _} = Float.parse(float_str)
+
+    state = update_references(float_value, state)
 
     {float_value, rest, state}
   end
@@ -164,7 +185,10 @@ defmodule ExMarshal.Decoder do
     {decimal_str, rest, state} = decode_raw_string(value, state)
     [_significant_digits, decimal_value] = String.split(decimal_str, ":")
 
-    {Decimal.new(decimal_value), rest, state}
+    decoded_big_decimal = Decimal.new(decimal_value)
+    state = update_references(decoded_big_decimal, state)
+
+    {decoded_big_decimal, rest, state}
   end
 
   defp decode_bignum(<<sign::1-bytes, size_byte::8, value::binary>>, state) do
@@ -174,14 +198,23 @@ defmodule ExMarshal.Decoder do
     <<bignum::native-integer-size(size), rest::binary>> = value
 
     if sign == "+" do
+      state = update_references(bignum, state)
       {bignum, rest, state}
     else
-      {bignum * -1, rest, state}
+      bignum = bignum * -1
+      state = update_references(bignum, state)
+
+      {bignum, rest, state}
     end
   end
 
   defp decode_array(value, 0, acc, state) do
-    {Enum.reverse(acc), value, state}
+    decoded_array = Enum.reverse(acc)
+
+    state = update_references(decoded_array, state)
+    state = unlock_references_state(state)
+
+    {decoded_array, value, state}
   end
 
   defp decode_array(value, size, acc, state) do
@@ -197,7 +230,12 @@ defmodule ExMarshal.Decoder do
   end
 
   defp decode_hash(value, 0, acc, state) do
-    {Enum.reverse(acc) |> Enum.into(%{}), value, state}
+    decoded_hash = Enum.reverse(acc) |> Enum.into(%{})
+
+    state = update_references(decoded_hash, state)
+    state = unlock_references_state(state)
+
+    {decoded_hash, value, state}
   end
 
   defp decode_hash(value, size, acc, state) do
@@ -214,6 +252,40 @@ defmodule ExMarshal.Decoder do
 
     decode_hash(value, size, [], state)
   end
+
+  defp decode_reference(<<reference::8, rest::binary>>, state) do
+    {reference, _rest, state} = decode_fixnum(<<reference>>, state)
+
+    {state.references[reference], rest, state}
+  end
+
+  defp update_references(value, state) do
+    case state.references.locked do
+      true -> state
+      false ->
+        references_count = if is_nil(state.references[:count]) do
+          1
+        else
+          state.references.count + 1
+        end
+
+        references_state = Map.put(state.references, :count, references_count)
+        references_state = Map.put(references_state, references_count, value)
+
+        %{links: state.links, references: references_state}
+    end
+  end
+
+  defp lock_references_state(state) do
+    case state.references.locked do
+      true -> state
+      false -> put_in(state.references.locked, true)
+    end
+  end
+
+  defp unlock_references_state(state) do
+    put_in(state.references.locked, false)
+  end
 end
 
 defmodule ExMarshal.DecodeError do
@@ -225,6 +297,8 @@ defmodule ExMarshal.DecodeError do
         "only string ivars are supported: #{inspect(term)}"
       {:invalid_encoding, term} ->
         "invalid encoding: #{inspect(term)}"
+      {:not_supported, term} ->
+        "term which starts with the following symbol is not supported: #{inspect(term)}"
     end
   end
 end
