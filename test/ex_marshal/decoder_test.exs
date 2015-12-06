@@ -230,4 +230,40 @@ defmodule ExMarshalDecoderTest do
 
     assert expected_hash == decoded_hash
   end
+
+  test "decode referenced string" do
+    ruby_encoded = File.read!("./test/fixtures/ref_1.bin")
+
+    decoded_ref = ExMarshal.decode(ruby_encoded)
+
+    assert ["hello", "hello", "hi", "hi", "ola", "ola"] == decoded_ref
+  end
+
+  test "decode referenced array" do
+    ruby_encoded = File.read!("./test/fixtures/ref_2.bin")
+
+    decoded_ref = ExMarshal.decode(ruby_encoded)
+
+    assert [[1, :two, "three", []], [1, :two, "three", []]] == decoded_ref
+  end
+
+  test "decode referenced hash" do
+    ruby_encoded = File.read!("./test/fixtures/ref_2.bin")
+
+    decoded_map = ExMarshal.decode(ruby_encoded)
+
+    expected_map = %{
+      one: %{one: 1, two: "two", three: :three, four: [[]]},
+      two: %{one: 1, two: "two", three: :three, four: [[]]}
+    }
+    assert expected_map, decoded_map
+  end
+
+  test "raises exception for non-supported symbol" do
+    ruby_encoded = File.read!("./test/fixtures/regexp.bin")
+
+    assert_raise ExMarshal.DecodeError, fn ->
+      ExMarshal.decode(ruby_encoded)
+    end
+  end
 end
