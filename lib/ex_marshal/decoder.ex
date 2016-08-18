@@ -13,6 +13,7 @@ defmodule ExMarshal.Decoder do
       "F" -> {false, value, state}
       "i" -> decode_fixnum(value, state)
       "I" -> decode_ivar(value, state)
+      "\"" -> decode_raw_string(value, state)
       ":" -> decode_symbol(value, state)
       ";" -> decode_linked_symbol(value, state)
       "f" -> decode_float(value, state)
@@ -109,10 +110,11 @@ defmodule ExMarshal.Decoder do
     {str_bytes, _, state} = decode_fixnum(<<str_length>>, state)
 
     <<str::size(str_bytes)-bytes, rest::binary>> = value
-    <<6, delimiter::8, enc_size::8, rest::binary>> = rest
+    <<6, delimiter::8, rest::binary>> = rest
 
     case delimiter do
       58 ->
+        <<enc_size::8, rest::binary>> = rest
         {enc_size, _, state} = decode_fixnum(<<enc_size>>, state)
 
         case enc_size do
@@ -132,9 +134,8 @@ defmodule ExMarshal.Decoder do
 
             {str, rest, state}
         end
-      59 -> # symbolic link, don't know if I should/can use it
-        <<_meta::8, rest::binary>> = rest
-
+      59 -> # string encoding can be encoded as a reference of existing symbol
+        <<_meta::8, _::8, rest::binary>> = rest
         state = update_references(str, state)
 
         {str, rest, state}
