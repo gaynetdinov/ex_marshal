@@ -8,6 +8,8 @@ Currently supported Ruby types are `nil`, `false`, `true`, `Fixnum`, `Bignum`, `
 
 Once you decide to integrate small Elixir tool into big-old-legacy Ruby system, chances are that you need to interact with [Memcached](http://memcached.org). As soon as Ruby code writes something into Memcached, most likely Ruby uses [dalli](https://github.com/mperham/dalli) gem. And `Dalli` uses [Ruby Marshal](http://docs.ruby-lang.org/en/2.2.0/marshal_rdoc.html) by default.
 
+Another use case is to decode Rails session encoded using Ruby Marshal. You can read more about it [here](https://github.com/cconstantin/plug_rails_cookie_session_store).
+
 ## Installation
 
 Add ExMarshal as a dependency to your `mix.exs` file:
