@@ -94,7 +94,7 @@ defmodule ExMarshal.Encoder do
   end
 
   defp encode_float(value, state) do
-    value_str = Float.to_string(value, [decimals: 10, compact: true])
+    value_str = :erlang.float_to_binary(value, [:compact, decimals: 10])
 
     {encoded_value, state} = encode_raw_string(value_str, state)
 
