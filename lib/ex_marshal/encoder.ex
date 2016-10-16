@@ -104,7 +104,7 @@ defmodule ExMarshal.Encoder do
   defp encode_string(value, state) do
     byte_size = byte_size(value)
     {encoded_size, state} = encode_fixnum(byte_size, state)
-    <<105, encoded_size>> = encoded_size
+    <<105, encoded_size::binary>> = encoded_size
 
     links_count = links_count(state)
 
@@ -114,11 +114,11 @@ defmodule ExMarshal.Encoder do
       state = Map.put(state, utf8_encoding, links_count)
       state = Map.put(state, :links_count, links_count)
 
-      {<<73, 34, encoded_size, value::size(byte_size)-bytes, 6, utf8_encoding::binary, 84>>, state}
+      {<<73, 34, encoded_size::binary, value::size(byte_size)-bytes, 6, utf8_encoding::binary, 84>>, state}
     else
       link = state[utf8_encoding]
 
-      {<<73, 34, encoded_size, value::size(byte_size)-bytes, 6, 59, link, 84>>, state}
+      {<<73, 34, encoded_size::binary, value::size(byte_size)-bytes, 6, 59, link, 84>>, state}
     end
   end
 

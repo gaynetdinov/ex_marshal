@@ -106,8 +106,8 @@ defmodule ExMarshal.Decoder do
     end
   end
 
-  defp decode_string(<<str_length::8, value::binary>>, state) do
-    {str_bytes, _, state} = decode_fixnum(<<str_length>>, state)
+  defp decode_string(<<value::binary>>, state) do
+    {str_bytes, value, state} = decode_fixnum(value, state)
 
     <<str::size(str_bytes)-bytes, rest::binary>> = value
     <<6, delimiter::8, rest::binary>> = rest
