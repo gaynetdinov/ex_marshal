@@ -37,4 +37,10 @@ defmodule ExMarshalTest do
 
     assert ExMarshal.decode(ruby_encoded) == ExMarshal.decode(ex_marshal_encoded)
   end
+
+  test "encode and decode a very long string" do
+    string = "http://usertesting.dev/admins/auth/google_oauth2/callback?state=eec87db6b1eaf789d869c6ad7def175d6d50240060b95f24&code=4/ItZbxW-FxI0TlRQelK0N-cWcUdPl1NzQ IRTrI6H3AI0"
+
+    assert string == ExMarshal.encode(string) |> ExMarshal.decode
+  end
 end
