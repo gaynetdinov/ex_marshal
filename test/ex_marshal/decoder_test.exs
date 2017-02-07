@@ -349,6 +349,27 @@ defmodule ExMarshalDecoderTest do
     assert expected_map, decoded_map
   end
 
+  test "set ruby objects to nil if nullify_objects is set to true" do
+    cookie = "BAh7CUkiD3Nlc3Npb25faWQGOgZFVEkiJTRjODRkMzUzMTFkNTc2YWUwYjVkMmNjZjRhNjY4YzY2BjsAVEkiE3VzZXJfcmV0dXJuX3RvBjsAVCIGL0kiEF9jc3JmX3Rva2VuBjsARkkiMWVlQkRhOThqT2F2Q2dkTFRSemZkM2lpMTU4Ly9JckUxVEJrY1lwZVgwQnM9BjsARkkiCmZsYXNoBjsAVG86JUFjdGlvbkRpc3BhdGNoOjpGbGFzaDo6Rmxhc2hIYXNoCToKQHVzZWRvOghTZXQGOgpAaGFzaH0GOgphbGVydFRGOgxAY2xvc2VkRjoNQGZsYXNoZXN7BjsKSSI2WW91IG5lZWQgdG8gc2lnbiBpbiBvciBzaWduIHVwIGJlZm9yZSBjb250aW51aW5nLgY7AFQ6CUBub3cw" 
+    {:ok, ruby_encoded} = Base.decode64(cookie)
+
+    Application.put_env(:ex_marshal, :nullify_objects, true)
+
+    assert nil == ExMarshal.decode(ruby_encoded)["flash"]
+  end
+
+  test "raises exception for non-supported symbol when nullify object is set to false" do
+    cookie = "BAh7CUkiD3Nlc3Npb25faWQGOgZFVEkiJTRjODRkMzUzMTFkNTc2YWUwYjVkMmNjZjRhNjY4YzY2BjsAVEkiE3VzZXJfcmV0dXJuX3RvBjsAVCIGL0kiEF9jc3JmX3Rva2VuBjsARkkiMWVlQkRhOThqT2F2Q2dkTFRSemZkM2lpMTU4Ly9JckUxVEJrY1lwZVgwQnM9BjsARkkiCmZsYXNoBjsAVG86JUFjdGlvbkRpc3BhdGNoOjpGbGFzaDo6Rmxhc2hIYXNoCToKQHVzZWRvOghTZXQGOgpAaGFzaH0GOgphbGVydFRGOgxAY2xvc2VkRjoNQGZsYXNoZXN7BjsKSSI2WW91IG5lZWQgdG8gc2lnbiBpbiBvciBzaWduIHVwIGJlZm9yZSBjb250aW51aW5nLgY7AFQ6CUBub3cw" 
+    {:ok, ruby_encoded} = Base.decode64(cookie)
+
+    Application.put_env(:ex_marshal, :nullify_objects, false)
+
+    assert_raise ExMarshal.DecodeError, fn ->
+      ExMarshal.decode(ruby_encoded)
+    end
+  end
+
+
   test "raises exception for non-supported symbol" do
     ruby_encoded = File.read!("./test/fixtures/regexp.bin")
 
