@@ -1,4 +1,5 @@
 defmodule ExMarshal.Decoder do
+
   def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
     case decode_element(value, %{links: %{}, references: %{locked: false, first_call: true}}) do
       {value, _rest, _state} -> value
@@ -7,6 +8,8 @@ defmodule ExMarshal.Decoder do
   end
 
   defp decode_element(<<data_type::1-bytes, value::binary>>, state) do
+    nullify_objects = Application.get_env(:ex_marshal, :nullify_objects, false)
+
     case data_type do
       "0" -> {nil, value, state}
       "T" -> {true, value, state}
@@ -36,6 +39,7 @@ defmodule ExMarshal.Decoder do
 
         decode_hash(value, state)
       "@" -> decode_reference(value, state)
+      "o" when nullify_objects === true -> {nil, value, state}
       symbol -> raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
     end
   end

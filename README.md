@@ -30,6 +30,17 @@ iex(2)> ExMarshal.encode([1, 2, 3])
 iex(3)>
 ```
 
+## Nullify Ruby Objects
+
+The default behaviour for ExMarshal is to raise an error when trying to decode an serilized ruby object. A config option can be used to nullify the ruby object without raising an error:
+
+```
+config :ex_marshal,
+  nullify_objects: true
+```
+
+__Use Case__ Rails 3.2 puts Ruby Objects into session(i.e. Flash messages wrapped in an object). When Phoenix try to read Rails session, this will cause ExMarshal to raise an error and a 500 error in Phoenix. If you don't need to read these values from Elixir/Phoenix, this is option allows ExMarshal to skip objects.
+
 ## ExMarshal with Memcache.Client
 
 Of course it's possible to use `ExMarshal` on its own, but the main reason why `ExMarshal` was created is to work with `Memcached`. Here is how `ExMarshal` can be used with [Memcache.Client](https://github.com/tsharju/memcache_client):
