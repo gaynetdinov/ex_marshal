@@ -16,7 +16,7 @@ Add ExMarshal as a dependency to your `mix.exs` file:
 
 ```elixir
 def deps do
-  [{:ex_marshal, "0.0.6"}]
+  [{:ex_marshal, "0.0.7"}]
 end
 ```
 
@@ -32,18 +32,18 @@ iex(3)>
 
 ## Nullify Ruby Objects
 
-The default behaviour for ExMarshal is to raise an error when trying to decode an serilized ruby object. A config option can be used to nullify the ruby object without raising an error:
+The default behaviour of ExMarshal is to raise an error when trying to decode an serilized ruby object. This config option can be used to nullify the ruby object without raising an error:
 
-```
+```elixir
 config :ex_marshal,
   nullify_objects: true
 ```
 
-__Use Case__ Rails 3.2 puts Ruby Objects into session(i.e. Flash messages wrapped in an object). When Phoenix try to read Rails session, this will cause ExMarshal to raise an error and a 500 error in Phoenix. If you don't need to read these values from Elixir/Phoenix, this is option allows ExMarshal to skip objects.
+__Use Case__ Rails 3.2 puts Ruby Objects into session(i.e. Flash messages wrapped in an object). When Phoenix is trying to read Rails session, this will cause ExMarshal to raise an error and a 500 error in Phoenix. If you don't need to read these values from Elixir/Phoenix, this option allows ExMarshal to skip objects.
 
 ## ExMarshal with Memcache.Client
 
-Of course it's possible to use `ExMarshal` on its own, but the main reason why `ExMarshal` was created is to work with `Memcached`. Here is how `ExMarshal` can be used with [Memcache.Client](https://github.com/tsharju/memcache_client):
+One of the reasons why `ExMarshal` was created is to work with `Memcached`. Here is how `ExMarshal` can be used with [Memcache.Client](https://github.com/tsharju/memcache_client):
 
 ```elixir
 
