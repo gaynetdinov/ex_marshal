@@ -69,6 +69,12 @@ defmodule ExMarshalDecoderTest do
     assert 100 == decoded_int
   end
 
+  test "decode small integer 2" do
+    decoded_int = ExMarshal.decode(<<4, 8, 105, 123>>)
+
+    assert 118 == decoded_int
+  end
+
   test "decode small negative integer" do
     decoded_int = ExMarshal.decode(<<4, 8, 105, 131>>)
 
