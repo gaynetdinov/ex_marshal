@@ -4,10 +4,10 @@ defmodule ExMarshal.Mixfile do
   def project do
     [app: :ex_marshal,
      version: "0.0.7",
-     elixir: "~> 1.0",
-     deps: deps,
-     description: description,
-     package: package]
+     elixir: "~> 1.1",
+     deps: deps(),
+     description: description(),
+     package: package()]
   end
 
   def application, do: []
