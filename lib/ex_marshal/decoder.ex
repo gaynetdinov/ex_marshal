@@ -49,7 +49,7 @@ defmodule ExMarshal.Decoder do
 
     case fixnum_type do
       0 -> {0, fixnum_data, state}
-      v when v >= 6 and v <= 122 ->
+      v when v >= 6 and v <= 127 ->
         <<fixnum::signed-little-integer-size(8)>> = <<v>>
 
         {fixnum - 5, fixnum_data, state}
