@@ -39,7 +39,7 @@ defmodule ExMarshal.Decoder do
 
         decode_hash(value, state)
       "@" -> decode_reference(value, state)
-      "o" when nullify_objects -> {nil, value, state}
+      symbol when nullify_objects -> {nil, value, state}
       symbol -> raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
     end
   end
