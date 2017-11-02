@@ -43,4 +43,12 @@ defmodule ExMarshalTest do
 
     assert string == ExMarshal.encode(string) |> ExMarshal.decode
   end
+
+  test "repetitive symbols" do
+    original_value = %{first: %{key: [:success]}, second: %{success: "yes"}}
+    ruby_encoded = File.read!("./test/fixtures/repetitive_symbols.bin")
+    ex_marshal_encoded = ExMarshal.encode(original_value)
+
+    assert ExMarshal.decode(ruby_encoded) == ExMarshal.decode(ex_marshal_encoded)
+  end
 end

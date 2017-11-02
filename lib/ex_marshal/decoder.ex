@@ -122,19 +122,21 @@ defmodule ExMarshal.Decoder do
         {enc_size, _, state} = decode_fixnum(<<enc_size>>, state)
 
         case enc_size do
-          1 -> # utf8 or ascii encding <<69, 84>> or <<69, 70>>
-            <<_meta::16, rest::binary>> = rest
+          1 -> # utf8 or ascii encoding <<69, 84>> or <<69, 70>>
+            <<enc_symbol::8, _meta::8, rest::binary>> = rest
 
             state = update_references(str, state)
+            state = update_links_state(state, enc_symbol)
 
             {str, rest, state}
           x ->
             <<_encoding_word::size(x)-bytes, 34, encoding_name_size::8, rest::binary>> = rest
             {encoding_name_size, _, state} = decode_fixnum(<<encoding_name_size>>, state)
 
-            <<_enc_name::size(encoding_name_size)-bytes, rest::binary>> = rest
+            <<enc_name::size(encoding_name_size)-bytes, rest::binary>> = rest
 
             state = update_references(str, state)
+            state = update_links_state(state, enc_name)
 
             {str, rest, state}
         end
@@ -165,16 +167,9 @@ defmodule ExMarshal.Decoder do
     <<value::size(symbol_bytes)-bytes, rest::binary>> = value
     atom_value = String.to_atom(value)
 
-    links_count = if is_nil(state.links[:count]) do
-      0
-    else
-      state.links.count + 1
-    end
+    state = update_links_state(state, atom_value)
 
-    links_state = Map.put(state.links, :count, links_count)
-    links_state = Map.put(links_state, links_count, atom_value)
-
-    {atom_value, rest, %{links: links_state, references: state.references}}
+    {atom_value, rest, state}
   end
 
   defp decode_float(<<value::binary>>, state) do
@@ -290,6 +285,19 @@ defmodule ExMarshal.Decoder do
 
   defp unlock_references_state(state) do
     put_in(state.references.locked, false)
+  end
+
+  defp update_links_state(state, value) do
+    links_count =
+      if state.links[:count] do
+        state.links.count + 1
+      else
+        0
+      end
+
+    state
+    |> put_in([:links, :count], links_count)
+    |> put_in([:links, links_count], value)
   end
 end
 
