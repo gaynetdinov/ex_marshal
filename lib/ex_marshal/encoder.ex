@@ -79,17 +79,20 @@ defmodule ExMarshal.Encoder do
     value_str = to_string(value)
     {encoded_value, state} = encode_raw_string(value_str, state)
 
-    links_count = links_count(state)
+    if Map.has_key?(state, encoded_value) do
+      link_index = state[encoded_value]
 
-    if !Map.has_key?(state, encoded_value) do
-      state = Map.put(state, encoded_value, links_count)
-      state = Map.put(state, :links_count, links_count)
+      {<<59, link_index>>, state}
+    else
+      links_counter = links_counter(state)
+      {<<105, encoded_link_index>>, _} = encode_fixnum(links_counter, state)
+
+      state =
+        state
+        |> Map.put(encoded_value, encoded_link_index)
+        |> Map.put(:links_counter, links_counter)
 
       {<<58, encoded_value::binary>>, state}
-    else
-      link = state[encoded_value]
-
-      {<<59, link>>, state}
     end
   end
 
@@ -106,19 +109,20 @@ defmodule ExMarshal.Encoder do
     {encoded_size, state} = encode_fixnum(byte_size, state)
     <<105, encoded_size::binary>> = encoded_size
 
-    links_count = links_count(state)
-
     utf8_encoding = <<58, 6, 69>>
 
-    if !Map.has_key?(state, utf8_encoding) do
-      state = Map.put(state, utf8_encoding, links_count)
-      state = Map.put(state, :links_count, links_count)
-
-      {<<73, 34, encoded_size::binary, value::size(byte_size)-bytes, 6, utf8_encoding::binary, 84>>, state}
-    else
+    if Map.has_key?(state, utf8_encoding) do
       link = state[utf8_encoding]
 
       {<<73, 34, encoded_size::binary, value::size(byte_size)-bytes, 6, 59, link, 84>>, state}
+    else
+      links_counter = links_counter(state)
+      {<<105, encoded_link_index>>, _} = encode_fixnum(links_counter, state)
+
+      state = Map.put(state, utf8_encoding, encoded_link_index)
+      state = Map.put(state, :links_counter, links_counter)
+
+      {<<73, 34, encoded_size::binary, value::size(byte_size)-bytes, 6, utf8_encoding::binary, 84>>, state}
     end
   end
 
@@ -188,12 +192,9 @@ defmodule ExMarshal.Encoder do
     end
   end
 
-  defp links_count(state) do
-    if state[:links_count] do
-      {count, _state} = encode_fixnum(state[:links_count] + 1, state)
-      <<105, count>> = count
-
-      count
+  defp links_counter(state) do
+    if state[:links_counter] do
+      state[:links_counter] + 1
     else
       0
     end

@@ -375,12 +375,17 @@ defmodule ExMarshalDecoderTest do
     end
   end
 
-
   test "raises exception for non-supported symbol" do
     ruby_encoded = File.read!("./test/fixtures/regexp.bin")
 
     assert_raise ExMarshal.DecodeError, fn ->
       ExMarshal.decode(ruby_encoded)
     end
+  end
+
+  test "decode repetitive symbols" do
+    value = <<4, 8, 123, 6, 73, 34, 6, 120, 6, 58, 6, 69, 84, 91, 7, 58, 12, 115, 117, 99, 99, 101, 115, 115, 59, 6>>
+
+    assert %{"x" => [:success, :success]} == ExMarshal.decode(value)
   end
 end
