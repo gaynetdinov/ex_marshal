@@ -11,17 +11,28 @@ defmodule ExMarshal.Decoder do
     nullify_objects = Application.get_env(:ex_marshal, :nullify_objects, false)
 
     case data_type do
-      "0" -> {nil, value, state}
-      "T" -> {true, value, state}
-      "F" -> {false, value, state}
-      "i" -> decode_fixnum(value, state)
-      "I" -> decode_ivar(value, state)
-      "\"" -> decode_raw_string(value, state)
-      ":" -> decode_symbol(value, state)
-      ";" -> decode_linked_symbol(value, state)
-      "f" -> decode_float(value, state)
-      "u" -> decode_big_decimal(value, state)
-      "l" -> decode_bignum(value, state)
+      "0" ->
+        {nil, value, state}
+      "T" ->
+        {true, value, state}
+      "F" ->
+        {false, value, state}
+      "i" ->
+        decode_fixnum(value, state)
+      "I" ->
+        decode_ivar(value, state)
+      "\"" ->
+        decode_raw_string(value, state)
+      ":" ->
+        decode_symbol(value, state)
+      ";" ->
+        decode_linked_symbol(value, state)
+      "f" ->
+        decode_float(value, state)
+      "u" ->
+        decode_big_decimal(value, state)
+      "l" ->
+        decode_bignum(value, state)
       "[" ->
         state = if state.references.first_call do
           put_in(state.references.first_call, false)
@@ -38,9 +49,12 @@ defmodule ExMarshal.Decoder do
         end
 
         decode_hash(value, state)
-      "@" -> decode_reference(value, state)
-      _symbol when nullify_objects -> {nil, value, state}
-      symbol -> raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
+      "@" ->
+        decode_reference(value, state)
+      _symbol when nullify_objects ->
+        {nil, value, state}
+      symbol ->
+        raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
     end
   end
 
@@ -103,11 +117,12 @@ defmodule ExMarshal.Decoder do
   # supported, so decoding an ivar equals to decoding a string.
   #
   # _meta is encoding value, don't know if I need this information here.
-  defp decode_ivar(<<ivar_type::8, value::binary>>, state) do
-    case ivar_type do
-      34 -> decode_string(value, state)
-      _ -> raise ExMarshal.DecodeError, reason: {:ivar_string_only, value}
-    end
+  defp decode_ivar(<<34, value::binary>>, state) do
+    decode_string(value, state)
+  end
+
+  defp decode_ivar(<<_::8, value::binary>>, _state) do
+    raise ExMarshal.DecodeError, reason: {:ivar_string_only, value}
   end
 
   defp decode_string(<<value::binary>>, state) do
@@ -260,27 +275,28 @@ defmodule ExMarshal.Decoder do
   end
 
   defp update_references(value, state) do
-    case state.references.locked do
-      true -> state
-      false ->
-        references_count = if is_nil(state.references[:count]) do
-          1
-        else
-          state.references.count + 1
-        end
+    if state.references.locked do
+      state
+    else
+      references_count = if is_nil(state.references[:count]) do
+        1
+      else
+        state.references.count + 1
+      end
 
-        references_state = Map.put(state.references, :count, references_count)
-        references_state = Map.put(references_state, references_count, value)
+      references_state = Map.put(state.references, :count, references_count)
+      references_state = Map.put(references_state, references_count, value)
 
-        %{links: state.links, references: references_state}
+      %{links: state.links, references: references_state}
     end
   end
 
-  defp lock_references_state(state) do
-    case state.references.locked do
-      true -> state
-      false -> put_in(state.references.locked, true)
-    end
+  defp lock_references_state(%{references: %{locked: true}} = state) do
+    state
+  end
+
+  defp lock_references_state(%{references: %{locked: false}} = state) do
+    put_in(state.references.locked, true)
   end
 
   defp unlock_references_state(state) do
