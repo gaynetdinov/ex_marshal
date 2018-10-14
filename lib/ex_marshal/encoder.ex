@@ -7,21 +7,31 @@ defmodule ExMarshal.Encoder do
 
   defp encode_element(value, state) do
     case value do
-      nil -> {<<48>>, state}
-      true -> {<<84>>, state}
-      false -> {<<70>>, state}
+      nil ->
+        {<<48>>, state}
+      true ->
+        {<<84>>, state}
+      false ->
+        {<<70>>, state}
       int when is_integer(int) ->
         case int do
           v when v < 1073741824 and v > -1073741825 -> encode_fixnum(v, state)
           v when v >= 1073741824 or v <= -1073741825 -> encode_bignum(v, state)
         end
-      str when is_bitstring(str) -> encode_string(str, state)
-      atom when is_atom(atom) -> encode_atom(atom, state)
-      list when is_list(list) -> encode_list(list, state)
-      float when is_float(float) -> encode_float(float, state)
-      %Decimal{} -> encode_decimal(value, state)
-      map when is_map(map) -> encode_map(map, state)
-      _ -> raise ExMarshal.EncodeError, reason: {:not_supported, value}
+      str when is_bitstring(str) ->
+        encode_string(str, state)
+      atom when is_atom(atom) ->
+        encode_atom(atom, state)
+      list when is_list(list) ->
+        encode_list(list, state)
+      float when is_float(float) ->
+        encode_float(float, state)
+      %Decimal{} ->
+        encode_decimal(value, state)
+      map when is_map(map) ->
+        encode_map(map, state)
+      _ ->
+        raise ExMarshal.EncodeError, reason: {:not_supported, value}
     end
   end
 
@@ -127,11 +137,12 @@ defmodule ExMarshal.Encoder do
   end
 
   defp encode_bignum(value, state) do
-    sign = if value > 0 do
-      <<43>>
-    else
-      <<45>>
-    end
+    sign =
+      if value > 0 do
+        <<43>>
+      else
+        <<45>>
+      end
 
     bit_size = count_bits(value)
     {encoded_byte_size, state} = encode_fixnum(trunc(bit_size / 16), state)
@@ -142,7 +153,8 @@ defmodule ExMarshal.Encoder do
 
   defp encode_fixnum(value, state) do
     case value do
-      0 -> {<<105, 0>>, state}
+      0 ->
+        {<<105, 0>>, state}
       small_int when small_int <= -1 and small_int >= -123 ->
         value = small_int - 5
 
@@ -186,9 +198,11 @@ defmodule ExMarshal.Encoder do
 
   defp count_bits(value) do
     bits = trunc(:math.log(abs(value)) / :math.log(2)) + 1
-    case rem(bits, 16) do
-      0 -> bits
-      _ -> bits - rem(bits, 16) + 16
+
+    if rem(bits, 16) == 0 do
+      bits
+    else
+      bits - rem(bits, 16) + 16
     end
   end
 
