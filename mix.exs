@@ -25,7 +25,7 @@ defmodule ExMarshal.Mixfile do
 
   defp deps do
     [
-      {:decimal, "~> 1.1"},
+      {:decimal, "~> 1.5"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
