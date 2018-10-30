@@ -365,7 +365,7 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "raises exception for non-supported symbol when nullify object is set to false" do
-    cookie = "BAh7CUkiD3Nlc3Npb25faWQGOgZFVEkiJTRjODRkMzUzMTFkNTc2YWUwYjVkMmNjZjRhNjY4YzY2BjsAVEkiE3VzZXJfcmV0dXJuX3RvBjsAVCIGL0kiEF9jc3JmX3Rva2VuBjsARkkiMWVlQkRhOThqT2F2Q2dkTFRSemZkM2lpMTU4Ly9JckUxVEJrY1lwZVgwQnM9BjsARkkiCmZsYXNoBjsAVG86JUFjdGlvbkRpc3BhdGNoOjpGbGFzaDo6Rmxhc2hIYXNoCToKQHVzZWRvOghTZXQGOgpAaGFzaH0GOgphbGVydFRGOgxAY2xvc2VkRjoNQGZsYXNoZXN7BjsKSSI2WW91IG5lZWQgdG8gc2lnbiBpbiBvciBzaWduIHVwIGJlZm9yZSBjb250aW51aW5nLgY7AFQ6CUBub3cw" 
+    cookie = "BAh7CUkiD3Nlc3Npb25faWQGOgZFVEkiJTRjODRkMzUzMTFkNTc2YWUwYjVkMmNjZjRhNjY4YzY2BjsAVEkiE3VzZXJfcmV0dXJuX3RvBjsAVCIGL0kiEF9jc3JmX3Rva2VuBjsARkkiMWVlQkRhOThqT2F2Q2dkTFRSemZkM2lpMTU4Ly9JckUxVEJrY1lwZVgwQnM9BjsARkkiCmZsYXNoBjsAVG86JUFjdGlvbkRpc3BhdGNoOjpGbGFzaDo6Rmxhc2hIYXNoCToKQHVzZWRvOghTZXQGOgpAaGFzaH0GOgphbGVydFRGOgxAY2xvc2VkRjoNQGZsYXNoZXN7BjsKSSI2WW91IG5lZWQgdG8gc2lnbiBpbiBvciBzaWduIHVwIGJlZm9yZSBjb250aW51aW5nLgY7AFQ6CUBub3cw"
     {:ok, ruby_encoded} = Base.decode64(cookie)
 
     Application.put_env(:ex_marshal, :nullify_objects, false)
@@ -376,6 +376,8 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "raises exception for non-supported symbol" do
+    Application.put_env(:ex_marshal, :nullify_objects, false)
+
     ruby_encoded = File.read!("./test/fixtures/regexp.bin")
 
     assert_raise ExMarshal.DecodeError, fn ->

@@ -1,15 +1,17 @@
 defmodule ExMarshal.Decoder do
 
   def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
-    case decode_element(value, %{links: %{}, references: %{locked: false, first_call: true}}) do
-      {value, _rest, _state} -> value
-      # TODO _ -> raise
-    end
+    initial_state = %{
+      links: %{},
+      references: %{locked: false, first_call: true}
+    }
+
+    {value, _rest, _state} = decode_element(value, initial_state)
+
+    value
   end
 
   defp decode_element(<<data_type::1-bytes, value::binary>>, state) do
-    nullify_objects = Application.get_env(:ex_marshal, :nullify_objects, false)
-
     case data_type do
       "0" ->
         {nil, value, state}
@@ -34,27 +36,31 @@ defmodule ExMarshal.Decoder do
       "l" ->
         decode_bignum(value, state)
       "[" ->
-        state = if state.references.first_call do
-          put_in(state.references.first_call, false)
-        else
-          lock_references_state(state)
-        end
+        state =
+          if state.references.first_call do
+            put_in(state.references.first_call, false)
+          else
+            lock_references_state(state)
+          end
 
         decode_array(value, state)
       "{" ->
-        state = if state.references.first_call do
-          put_in(state.references.first_call, false)
-        else
-          lock_references_state(state)
-        end
+        state =
+          if state.references.first_call do
+            put_in(state.references.first_call, false)
+          else
+            lock_references_state(state)
+          end
 
         decode_hash(value, state)
       "@" ->
         decode_reference(value, state)
-      _symbol when nullify_objects ->
-        {nil, value, state}
       symbol ->
-        raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
+        if nullify_objects?() do
+          {nil, value, state}
+        else
+          raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
+        end
     end
   end
 
@@ -121,8 +127,12 @@ defmodule ExMarshal.Decoder do
     decode_string(value, state)
   end
 
-  defp decode_ivar(<<_::8, value::binary>>, _state) do
-    raise ExMarshal.DecodeError, reason: {:ivar_string_only, value}
+  defp decode_ivar(<<_::8, value::binary>>, state) do
+    if nullify_objects?() do
+      {nil, value, state}
+    else
+      raise ExMarshal.DecodeError, reason: {:ivar_string_only, value}
+    end
   end
 
   defp decode_string(<<value::binary>>, state) do
@@ -278,11 +288,12 @@ defmodule ExMarshal.Decoder do
     if state.references.locked do
       state
     else
-      references_count = if is_nil(state.references[:count]) do
-        1
-      else
-        state.references.count + 1
-      end
+      references_count =
+        if is_nil(state.references[:count]) do
+          1
+        else
+          state.references.count + 1
+        end
 
       references_state = Map.put(state.references, :count, references_count)
       references_state = Map.put(references_state, references_count, value)
@@ -314,6 +325,10 @@ defmodule ExMarshal.Decoder do
     state
     |> put_in([:links, :count], links_count)
     |> put_in([:links, links_count], value)
+  end
+
+  defp nullify_objects? do
+    Application.get_env(:ex_marshal, :nullify_objects, false)
   end
 end
 
