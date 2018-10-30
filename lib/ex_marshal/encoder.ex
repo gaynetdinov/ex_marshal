@@ -1,4 +1,6 @@
 defmodule ExMarshal.Encoder do
+  alias ExMarshal.Errors.EncodeError
+
   def encode(value) do
     {value_binary, _state} = encode_element(value, %{})
 
@@ -31,7 +33,7 @@ defmodule ExMarshal.Encoder do
       map when is_map(map) ->
         encode_map(map, state)
       _ ->
-        raise ExMarshal.EncodeError, reason: {:not_supported, value}
+        raise EncodeError, reason: {:not_supported, value}
     end
   end
 
@@ -46,7 +48,7 @@ defmodule ExMarshal.Encoder do
   end
 
   defp encode_map(%{__struct__: _} = struct, _) do
-    raise ExMarshal.EncodeError, reason: {:not_supported, struct}
+    raise EncodeError, reason: {:not_supported, struct}
   end
 
   defp encode_map(value, state) do
@@ -211,17 +213,6 @@ defmodule ExMarshal.Encoder do
       state[:links_counter] + 1
     else
       0
-    end
-  end
-end
-
-defmodule ExMarshal.EncodeError do
-  defexception [:reason]
-
-  def message(%__MODULE__{} = exception) do
-    case exception.reason() do
-      {:not_supported, term} ->
-        "the following type is not supported: #{inspect(term)}"
     end
   end
 end
