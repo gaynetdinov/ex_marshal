@@ -1,6 +1,7 @@
 defmodule ExMarshalDecoderTest do
   use ExUnit.Case
   doctest ExMarshal
+  alias ExMarshal.Errors.DecodeError
 
   test "decode nil" do
     decoded_nil = ExMarshal.decode(<<4, 8, 48>>)
@@ -370,7 +371,7 @@ defmodule ExMarshalDecoderTest do
 
     Application.put_env(:ex_marshal, :nullify_objects, false)
 
-    assert_raise ExMarshal.DecodeError, fn ->
+    assert_raise DecodeError, fn ->
       ExMarshal.decode(ruby_encoded)
     end
   end
@@ -380,7 +381,7 @@ defmodule ExMarshalDecoderTest do
 
     ruby_encoded = File.read!("./test/fixtures/regexp.bin")
 
-    assert_raise ExMarshal.DecodeError, fn ->
+    assert_raise DecodeError, fn ->
       ExMarshal.decode(ruby_encoded)
     end
   end

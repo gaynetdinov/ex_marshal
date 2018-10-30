@@ -5,6 +5,7 @@ defmodule ExMarshalEncoderTest do
 
   use ExUnit.Case
   doctest ExMarshal
+  alias ExMarshal.Errors.EncodeError
 
   test "encode nil" do
     encoded_nil = ExMarshal.encode(nil)
@@ -168,7 +169,7 @@ defmodule ExMarshalEncoderTest do
   test "encode not supported format" do
     exception_message = "the following type is not supported: %ExMarshalEncoderTest.User{age: 27, name: \"Meg\"}"
 
-    assert_raise ExMarshal.EncodeError, exception_message, fn ->
+    assert_raise EncodeError, exception_message, fn ->
       ExMarshal.encode(%User{name: "Meg"})
     end
   end

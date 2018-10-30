@@ -1,4 +1,5 @@
 defmodule ExMarshal.Decoder do
+  alias ExMarshal.Errors.DecodeError
 
   def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
     initial_state = %{
@@ -59,7 +60,7 @@ defmodule ExMarshal.Decoder do
         if nullify_objects?() do
           {nil, value, state}
         else
-          raise ExMarshal.DecodeError, reason: {:not_supported, symbol}
+          raise DecodeError, reason: {:not_supported, symbol}
         end
     end
   end
@@ -131,7 +132,7 @@ defmodule ExMarshal.Decoder do
     if nullify_objects?() do
       {nil, value, state}
     else
-      raise ExMarshal.DecodeError, reason: {:ivar_string_only, value}
+      raise DecodeError, reason: {:ivar_string_only, value}
     end
   end
 
@@ -329,20 +330,5 @@ defmodule ExMarshal.Decoder do
 
   defp nullify_objects? do
     Application.get_env(:ex_marshal, :nullify_objects, false)
-  end
-end
-
-defmodule ExMarshal.DecodeError do
-  defexception [:reason]
-
-  def message(%__MODULE__{} = exception) do
-    case exception.reason() do
-      {:ivar_string_only, term} ->
-        "only string ivars are supported: #{inspect(term)}"
-      {:invalid_encoding, term} ->
-        "invalid encoding: #{inspect(term)}"
-      {:not_supported, term} ->
-        "term which starts with the following symbol is not supported: #{inspect(term)}"
-    end
   end
 end
