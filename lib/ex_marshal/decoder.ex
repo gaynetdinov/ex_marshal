@@ -250,9 +250,9 @@ defmodule ExMarshal.Decoder do
 
   defp decode_array(<<0>>, state), do: {[], <<>>, state}
 
-  defp decode_array(<<size::8, value::binary>>, state) do
-    {size, _rest, state} = decode_fixnum(<<size>>, state)
-    decode_array(value, size, [], state)
+  defp decode_array(<<value::binary>>, state) do
+    {size, rest, state} = decode_fixnum(value, state)
+    decode_array(rest, size, [], state)
   end
 
   defp decode_hash(value, 0, acc, state) do
@@ -273,10 +273,10 @@ defmodule ExMarshal.Decoder do
 
   defp decode_hash(<<0>>, state), do: {%{}, <<>>, state}
 
-  defp decode_hash(<<size::8, value::binary>>, state) do
-    {size, _rest, state} = decode_fixnum(<<size>>, state)
+  defp decode_hash(<<value::binary>>, state) do
+    {size, rest, state} = decode_fixnum(value, state)
 
-    decode_hash(value, size, [], state)
+    decode_hash(rest, size, [], state)
   end
 
   defp decode_reference(<<reference::8, rest::binary>>, state) do
