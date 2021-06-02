@@ -173,4 +173,14 @@ defmodule ExMarshalEncoderTest do
       ExMarshal.encode(%User{name: "Meg"})
     end
   end
+
+  test "encode long lists" do
+    list_200 = File.read!("test/fixtures/200_items_list.bin")
+    list_500 = File.read!("test/fixtures/500_items_list.bin")
+    list_70000 = File.read!("test/fixtures/70000_items_list.bin")
+
+    assert list_200 == Enum.to_list(1..200) |> ExMarshal.encode()
+    assert list_500 == Enum.to_list(1..500) |> ExMarshal.encode()
+    assert list_70000 == Enum.to_list(1..70000) |> ExMarshal.encode()
+  end
 end
