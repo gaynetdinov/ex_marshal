@@ -51,4 +51,34 @@ defmodule ExMarshalTest do
 
     assert ExMarshal.decode(ruby_encoded) == ExMarshal.decode(ex_marshal_encoded)
   end
+
+  test "encode and decode long lists" do
+    list_200 = Enum.to_list(1..200)
+    list_500 = Enum.to_list(1..500)
+    list_70000 = Enum.to_list(1..70000)
+
+    assert ExMarshal.encode(list_200) |> ExMarshal.decode() == list_200
+    assert ExMarshal.encode(list_500) |> ExMarshal.decode() == list_500
+    assert ExMarshal.encode(list_70000) |> ExMarshal.decode() == list_70000
+  end
+
+  test "encode and decode maps with many keys" do
+    map_200 = Map.new(1..200, fn i -> {String.to_atom("k#{i}"),i} end)
+    map_500 = Map.new(1..500, fn i -> {String.to_atom("k#{i}"),i} end)
+    map_70000 = Map.new(1..70000, fn i -> {String.to_atom("k#{i}"),i} end)
+
+    assert ExMarshal.encode(map_200) |> ExMarshal.decode() == map_200
+    assert ExMarshal.encode(map_500) |> ExMarshal.decode() == map_500
+    assert ExMarshal.encode(map_70000) |> ExMarshal.decode() == map_70000
+  end
+
+  test "encode and decode maps with many string keys" do
+    map_200 = Map.new(1..200, fn i -> {"#{i}",i} end)
+    map_500 = Map.new(1..500, fn i -> {"#{i}",i} end)
+    map_70000 = Map.new(1..70000, fn i -> {"#{i}",i} end)
+
+    assert ExMarshal.encode(map_200) |> ExMarshal.decode() == map_200
+    assert ExMarshal.encode(map_500) |> ExMarshal.decode() == map_500
+    assert ExMarshal.encode(map_70000) |> ExMarshal.decode() == map_70000
+  end
 end

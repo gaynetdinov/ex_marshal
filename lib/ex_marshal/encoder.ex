@@ -54,10 +54,10 @@ defmodule ExMarshal.Encoder do
   defp encode_map(value, state) do
     value = Enum.into(value, [])
     {size, state} = encode_fixnum(Enum.count(value), state)
-    <<105, size>> = size
+    <<105, size::binary>> = size
 
     {value_encoded, state} = encode_map(value, <<>>, state)
-    {<<123, size, value_encoded::binary>>, state}
+    {<<123, size::binary, value_encoded::binary>>, state}
   end
 
   defp encode_map([], acc, state), do: {acc, state}
@@ -72,10 +72,10 @@ defmodule ExMarshal.Encoder do
 
   defp encode_list(value, state) do
     {size, state} = encode_fixnum(Enum.count(value), state)
-    <<105, size>> = size
+    <<105, size::binary>> = size
 
     {list_binary, state} = encode_list(value, <<>>, state)
-    {<<91, size, list_binary::binary>>, state}
+    {<<91, size::binary, list_binary::binary>>, state}
   end
 
   defp encode_list([], acc, state), do: {acc, state}
@@ -94,10 +94,10 @@ defmodule ExMarshal.Encoder do
     if Map.has_key?(state, encoded_value) do
       link_index = state[encoded_value]
 
-      {<<59, link_index>>, state}
+      {<<59, link_index::binary>>, state}
     else
       links_counter = links_counter(state)
-      {<<105, encoded_link_index>>, _} = encode_fixnum(links_counter, state)
+      {<<105, encoded_link_index::binary>>, _} = encode_fixnum(links_counter, state)
 
       state =
         state

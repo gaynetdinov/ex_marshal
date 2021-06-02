@@ -357,7 +357,7 @@ defmodule ExMarshalDecoderTest do
   end
 
   test "set ruby objects to nil if nullify_objects is set to true" do
-    cookie = "BAh7CUkiD3Nlc3Npb25faWQGOgZFVEkiJTRjODRkMzUzMTFkNTc2YWUwYjVkMmNjZjRhNjY4YzY2BjsAVEkiE3VzZXJfcmV0dXJuX3RvBjsAVCIGL0kiEF9jc3JmX3Rva2VuBjsARkkiMWVlQkRhOThqT2F2Q2dkTFRSemZkM2lpMTU4Ly9JckUxVEJrY1lwZVgwQnM9BjsARkkiCmZsYXNoBjsAVG86JUFjdGlvbkRpc3BhdGNoOjpGbGFzaDo6Rmxhc2hIYXNoCToKQHVzZWRvOghTZXQGOgpAaGFzaH0GOgphbGVydFRGOgxAY2xvc2VkRjoNQGZsYXNoZXN7BjsKSSI2WW91IG5lZWQgdG8gc2lnbiBpbiBvciBzaWduIHVwIGJlZm9yZSBjb250aW51aW5nLgY7AFQ6CUBub3cw" 
+    cookie = "BAh7CUkiD3Nlc3Npb25faWQGOgZFVEkiJTRjODRkMzUzMTFkNTc2YWUwYjVkMmNjZjRhNjY4YzY2BjsAVEkiE3VzZXJfcmV0dXJuX3RvBjsAVCIGL0kiEF9jc3JmX3Rva2VuBjsARkkiMWVlQkRhOThqT2F2Q2dkTFRSemZkM2lpMTU4Ly9JckUxVEJrY1lwZVgwQnM9BjsARkkiCmZsYXNoBjsAVG86JUFjdGlvbkRpc3BhdGNoOjpGbGFzaDo6Rmxhc2hIYXNoCToKQHVzZWRvOghTZXQGOgpAaGFzaH0GOgphbGVydFRGOgxAY2xvc2VkRjoNQGZsYXNoZXN7BjsKSSI2WW91IG5lZWQgdG8gc2lnbiBpbiBvciBzaWduIHVwIGJlZm9yZSBjb250aW51aW5nLgY7AFQ6CUBub3cw"
     {:ok, ruby_encoded} = Base.decode64(cookie)
 
     Application.put_env(:ex_marshal, :nullify_objects, true)
@@ -390,5 +390,15 @@ defmodule ExMarshalDecoderTest do
     value = <<4, 8, 123, 6, 73, 34, 6, 120, 6, 58, 6, 69, 84, 91, 7, 58, 12, 115, 117, 99, 99, 101, 115, 115, 59, 6>>
 
     assert %{"x" => [:success, :success]} == ExMarshal.decode(value)
+  end
+
+  test "decode long lists" do
+    list_200 = File.read!("test/fixtures/200_items_list.bin")
+    list_500 = File.read!("test/fixtures/500_items_list.bin")
+    list_70000 = File.read!("test/fixtures/70000_items_list.bin")
+
+    assert ExMarshal.decode(list_200) == Enum.to_list(1..200)
+    assert ExMarshal.decode(list_500) == Enum.to_list(1..500)
+    assert ExMarshal.decode(list_70000) == Enum.to_list(1..70000)
   end
 end
