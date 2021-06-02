@@ -63,9 +63,9 @@ defmodule ExMarshalTest do
   end
 
   test "encode and decode maps with many keys" do
-    map_200 = Map.new(1..200, fn i -> {String.to_atom("k#{i}"),i} end)
-    map_500 = Map.new(1..500, fn i -> {String.to_atom("k#{i}"),i} end)
-    map_70000 = Map.new(1..70000, fn i -> {String.to_atom("k#{i}"),i} end)
+    map_200 = Enum.reduce(1..200, %{}, fn i, acc -> Map.put(acc, String.to_atom("k#{i}"), i) end)
+    map_500 = Enum.reduce(1..500, %{}, fn i, acc -> Map.put(acc, String.to_atom("k#{i}"), i) end)
+    map_70000 = Enum.reduce(1..70_000, %{}, fn i, acc -> Map.put(acc, String.to_atom("k#{i}"), i) end)
 
     assert ExMarshal.encode(map_200) |> ExMarshal.decode() == map_200
     assert ExMarshal.encode(map_500) |> ExMarshal.decode() == map_500
@@ -73,9 +73,9 @@ defmodule ExMarshalTest do
   end
 
   test "encode and decode maps with many string keys" do
-    map_200 = Map.new(1..200, fn i -> {"#{i}",i} end)
-    map_500 = Map.new(1..500, fn i -> {"#{i}",i} end)
-    map_70000 = Map.new(1..70000, fn i -> {"#{i}",i} end)
+    map_200 = Enum.reduce(1..200, %{}, fn i, acc -> Map.put(acc, "#{i}", i) end)
+    map_500 = Enum.reduce(1..500, %{}, fn i, acc -> Map.put(acc, "#{i}", i) end)
+    map_70000 = Enum.reduce(1..70_000, %{}, fn i, acc -> Map.put(acc, "#{i}", i) end)
 
     assert ExMarshal.encode(map_200) |> ExMarshal.decode() == map_200
     assert ExMarshal.encode(map_500) |> ExMarshal.decode() == map_500
