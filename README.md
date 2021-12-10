@@ -1,4 +1,12 @@
-# ExMarshal [![Build Status](https://travis-ci.org/gaynetdinov/ex_marshal.svg?branch=master)](https://travis-ci.org/gaynetdinov/ex_marshal) [![Hex pm](http://img.shields.io/hexpm/v/ex_marshal.svg?style=flat)](https://hex.pm/packages/ex_marshal)
+# ExMarshal
+
+[![Build Status](https://travis-ci.org/gaynetdinov/ex_marshal.svg?branch=master)](https://travis-ci.org/gaynetdinov/ex_marshal)
+[![Hex pm](http://img.shields.io/hexpm/v/ex_marshal.svg?style=flat)](https://hex.pm/packages/ex_marshal)
+[![Module Version](https://img.shields.io/hexpm/v/ex_marshal.svg)](https://hex.pm/packages/ex_marshal)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_marshal/)
+[![Total Download](https://img.shields.io/hexpm/dt/ex_marshal.svg)](https://hex.pm/packages/ex_marshal)
+[![License](https://img.shields.io/hexpm/l/ex_marshal.svg)](https://github.com/gaynetdinov/ex_marshal/blob/master/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/gaynetdinov/ex_marshal.svg)](https://github.com/gaynetdinov/ex_marshal/commits/master)
 
 `ExMarshal` encodes and decodes Elixir terms according to [Ruby Marshal](http://docs.ruby-lang.org/en/2.2.0/marshal_rdoc.html) format.
 
@@ -16,7 +24,9 @@ Add ExMarshal as a dependency to your `mix.exs` file:
 
 ```elixir
 def deps do
-  [{:ex_marshal, "0.0.12"}]
+  [
+    {:ex_marshal, "0.0.12"},
+  ]
 end
 ```
 
@@ -120,6 +130,8 @@ Thanks to [@shepmaster](https://github.com/shepmaster) for [series](http://jakeg
 
 Special thanks to [@lexmag](https://github.com/lexmag) for help in writing this tool and for guiding me through Elixir world.
 
-## License
+## Copyright and License
 
-This software is licensed under [the ISC license](LICENSE).
+Copyright (c) 2015, Damir Gaynetdinov <damir.gaynetdinov@gmail.com>
+
+This software is licensed under [the ISC license](./LICENSE.md).
