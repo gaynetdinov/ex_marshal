@@ -1,7 +1,7 @@
 defmodule ExMarshal.Decoder do
   alias ExMarshal.Errors.DecodeError
 
-  def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
+  def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>, opts \\ []) do
     initial_state = %{
       links: %{},
       references: %{locked: false, first_call: true}
