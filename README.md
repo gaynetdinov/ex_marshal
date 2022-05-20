@@ -30,6 +30,16 @@ iex(2)> ExMarshal.encode([1, 2, 3])
 iex(3)>
 ```
 
+It is also possible to decode user objects such as Ruby dates using custom parsers which can be specified via the `user_object_parsers` option:
+
+```elixir
+iex(1)> value = <<4, 8, 85, 58, 9, 68, 97, 116, 101, 91, 11, 105, 0, 105, 3, 72, 136, 37, 105, 0, 105, 0, 105, 0, 102, 12, 50, 50, 57, 57, 49, 54, 49>>
+<<4, 8, 85, 58, 9, 68, 97, 116, 101, 91, 11, 105, 0, 105, 3, 72, 136, 37, 105,
+  0, 105, 0, 105, 0, 102, 12, 50, 50, 57, 57, 49, 54, 49>>
+iex(2)> ExMarshal.decode(value, user_object_parsers: %{Date: fn [_, julian_day, _, _, _, _] -> Date.from_gregorian_days(julian_day - 1721425) end})
+~D[2021-05-20]
+```
+
 ## Nullify Ruby Objects
 
 The default behaviour of ExMarshal is to raise an error when trying to decode an serilized ruby object. This config option can be used to nullify the ruby object without raising an error:

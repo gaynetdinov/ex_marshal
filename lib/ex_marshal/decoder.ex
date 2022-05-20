@@ -4,7 +4,8 @@ defmodule ExMarshal.Decoder do
   def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>, opts \\ []) do
     initial_state = %{
       links: %{},
-      references: %{locked: false, first_call: true}
+      references: %{locked: false, first_call: true},
+      user_object_parsers: Keyword.get(opts, :user_object_parsers, %{}),
     }
 
     {value, _rest, _state} = decode_element(value, initial_state)
@@ -291,7 +292,14 @@ defmodule ExMarshal.Decoder do
     {class_name, rest, state} = decode_symbol(rest, state)
     {attributes, rest, state} = decode_element(rest, state)
 
-    {{class_name, attributes}, rest, state}
+    value =
+      if parser_fn = Map.get(state.user_object_parsers, class_name) do
+        parser_fn.(attributes)
+      else
+        {class_name, attributes}
+      end
+
+    {value, rest, state}
   end
 
   defp update_references(value, state) do
