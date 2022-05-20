@@ -401,4 +401,11 @@ defmodule ExMarshalDecoderTest do
     assert ExMarshal.decode(list_500) == Enum.to_list(1..500)
     assert ExMarshal.decode(list_70000) == Enum.to_list(1..70000)
   end
+
+  test "decode user object" do
+    # Marshal.dump(Date.today).chars.map(&:ord)
+    value = <<4, 8, 85, 58, 9, 68, 97, 116, 101, 91, 11, 105, 0, 105, 3, 72, 136, 37, 105, 0, 105, 0, 105, 0, 102, 12, 50, 50, 57, 57, 49, 54, 49>>
+
+    assert {:Date, [0, 2459720, 0, 0, 0, 2299161.0]} == ExMarshal.decode(value)
+  end
 end

@@ -56,6 +56,8 @@ defmodule ExMarshal.Decoder do
         decode_hash(value, state)
       "@" ->
         decode_reference(value, state)
+      "U" ->
+        decode_user_object(value, state)
       symbol ->
         if nullify_objects?() do
           {nil, value, state}
@@ -283,6 +285,13 @@ defmodule ExMarshal.Decoder do
     {reference, _rest, state} = decode_fixnum(<<reference>>, state)
 
     {state.references[reference], rest, state}
+  end
+
+  defp decode_user_object(<<?:, rest::binary>>, state) do
+    {class_name, rest, state} = decode_symbol(rest, state)
+    {attributes, rest, state} = decode_element(rest, state)
+
+    {{class_name, attributes}, rest, state}
   end
 
   defp update_references(value, state) do
