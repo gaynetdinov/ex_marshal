@@ -299,7 +299,7 @@ defmodule ExMarshal.Decoder do
       references_state = Map.put(state.references, :count, references_count)
       references_state = Map.put(references_state, references_count, value)
 
-      %{links: state.links, references: references_state}
+      %{state | references: references_state}
     end
   end
 
