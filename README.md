@@ -2,7 +2,7 @@
 
 `ExMarshal` encodes and decodes Elixir terms according to [Ruby Marshal](http://docs.ruby-lang.org/en/2.2.0/marshal_rdoc.html) format.
 
-Currently supported Ruby types are `nil`, `false`, `true`, `Fixnum`, `Bignum`, `BigDecimal`, `Float`, `Symbol`, `String`, `Array`, `Hash`.
+Currently supported Ruby types are `nil`, `false`, `true`, `Fixnum`, `Bignum`, `BigDecimal`, `Float`, `Symbol`, `String`, `Array`, `Hash` as well as user-defined types such as `Date`.
 
 ## Why?
 
@@ -28,6 +28,16 @@ iex(1)> ExMarshal.decode(<<4, 8, 91, 8, 105, 6, 105, 7, 105, 8>>)
 iex(2)> ExMarshal.encode([1, 2, 3])
 <<4, 8, 91, 8, 105, 6, 105, 7, 105, 8>>
 iex(3)>
+```
+
+It is also possible to decode user objects such as Ruby dates using custom parsers which can be specified via the `user_object_parsers` option:
+
+```elixir
+iex(1)> value = <<4, 8, 85, 58, 9, 68, 97, 116, 101, 91, 11, 105, 0, 105, 3, 72, 136, 37, 105, 0, 105, 0, 105, 0, 102, 12, 50, 50, 57, 57, 49, 54, 49>>
+<<4, 8, 85, 58, 9, 68, 97, 116, 101, 91, 11, 105, 0, 105, 3, 72, 136, 37, 105,
+  0, 105, 0, 105, 0, 102, 12, 50, 50, 57, 57, 49, 54, 49>>
+iex(2)> ExMarshal.decode(value, user_object_parsers: %{Date: fn [_, julian_day, _, _, _, _] -> Date.from_gregorian_days(julian_day - 1721425) end})
+~D[2021-05-20]
 ```
 
 ## Nullify Ruby Objects

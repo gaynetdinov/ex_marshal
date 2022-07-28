@@ -3,7 +3,7 @@ defmodule ExMarshal do
     ExMarshal.Encoder.encode(value)
   end
 
-  def decode(value) do
-    ExMarshal.Decoder.decode(value)
+  def decode(value, opts \\ []) do
+    ExMarshal.Decoder.decode(value, opts)
   end
 end

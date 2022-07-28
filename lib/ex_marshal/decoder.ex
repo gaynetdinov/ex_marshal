@@ -1,10 +1,11 @@
 defmodule ExMarshal.Decoder do
   alias ExMarshal.Errors.DecodeError
 
-  def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>) do
+  def decode(<<_major::1-bytes, _minor::1-bytes, value::binary>>, opts \\ []) do
     initial_state = %{
       links: %{},
-      references: %{locked: false, first_call: true}
+      references: %{locked: false, first_call: true},
+      user_object_parsers: Keyword.get(opts, :user_object_parsers, %{}),
     }
 
     {value, _rest, _state} = decode_element(value, initial_state)
@@ -56,6 +57,8 @@ defmodule ExMarshal.Decoder do
         decode_hash(value, state)
       "@" ->
         decode_reference(value, state)
+      "U" ->
+        decode_user_object(value, state)
       symbol ->
         if nullify_objects?() do
           {nil, value, state}
@@ -285,6 +288,20 @@ defmodule ExMarshal.Decoder do
     {state.references[reference], rest, state}
   end
 
+  defp decode_user_object(<<?:, rest::binary>>, state) do
+    {class_name, rest, state} = decode_symbol(rest, state)
+    {attributes, rest, state} = decode_element(rest, state)
+
+    value =
+      if parser_fn = Map.get(state.user_object_parsers, class_name) do
+        parser_fn.(attributes)
+      else
+        {class_name, attributes}
+      end
+
+    {value, rest, state}
+  end
+
   defp update_references(value, state) do
     if state.references.locked do
       state
@@ -299,7 +316,7 @@ defmodule ExMarshal.Decoder do
       references_state = Map.put(state.references, :count, references_count)
       references_state = Map.put(references_state, references_count, value)
 
-      %{links: state.links, references: references_state}
+      %{state | references: references_state}
     end
   end
 
