@@ -16,7 +16,7 @@ Add ExMarshal as a dependency to your `mix.exs` file:
 
 ```elixir
 def deps do
-  [{:ex_marshal, "0.0.12"}]
+  [{:ex_marshal, "0.0.13"}]
 end
 ```
 
